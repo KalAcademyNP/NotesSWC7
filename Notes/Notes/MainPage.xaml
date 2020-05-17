@@ -4,24 +4,26 @@
              xmlns:d="http://xamarin.com/schemas/2014/forms/design"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d"
+             Title="Notes"
              x:Class="Notes.MainPage">
 
-    <StackLayout Margin="10,35,10,10">
-        <!-- Place new controls here -->
-        <Label Text="Notes" 
-           HorizontalOptions="Center"
-               FontAttributes="Bold"/>
-        <Editor x:Name="editor"
-                Placeholder="Enter your note"
-                HeightRequest="100" />
-        <Grid>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="*" />
-            </Grid.ColumnDefinitions>
-            <Button Text="Save" Clicked="OnSaveButtonClicked" />
-            <Button Text="Delete" Grid.Column="1" Clicked="OnDeleteButtonClicked" />
-        </Grid>
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Text="+"
+                     Clicked="OnNoteAddedClicked" />
+    </ContentPage.ToolbarItems>
+    <StackLayout>
+        <Button Text="Add Note" Clicked="OnNoteAddedClicked" />
+        <ListView x:Name="listView"
+                  Margin="20"
+                  ItemSelected="OnListViewItemSelected">
+
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <TextCell Text="{Binding Text}"
+                              Detail="{Binding Date}" />
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
     </StackLayout>
 
 </ContentPage>

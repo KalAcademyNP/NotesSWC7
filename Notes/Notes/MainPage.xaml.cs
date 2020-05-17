@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Notes.Models;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
@@ -14,29 +15,48 @@ namespace Notes
     [DesignTimeVisible(false)]
     public partial class MainPage : ContentPage
     {
-        string _fileName = Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "notes.txt");
         public MainPage()
         {
             InitializeComponent();
-            if (File.Exists(_fileName))
-            {
-                editor.Text = File.ReadAllText(_fileName);
-            }
         }
 
-        private void OnSaveButtonClicked(object sender, EventArgs e)
+        protected override void OnAppearing()
         {
-            File.WriteAllText(_fileName, editor.Text);
+            var notes = new List<Note>();
+
+            var files = Directory.EnumerateFiles(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                "*.notes.txt");
+            foreach (var filename in files)
+            {
+                var note = new Note
+                {
+                    Text = File.ReadAllText(filename),
+                    Filename = filename,
+                    Date = File.GetCreationTime(filename)
+                };
+                notes.Add(note);
+            }
+
+            listView.ItemsSource = notes.OrderBy(n => n.Date).ToList();
         }
 
-        private void OnDeleteButtonClicked(object sender, EventArgs e)
+        private async void OnNoteAddedClicked(object sender, EventArgs e)
         {
-            if(File.Exists(_fileName))
+            await Navigation.PushModalAsync(new NoteEntryPage
             {
-                File.Delete(_fileName);
+                BindingContext = new Note()
+            });
+        }
+
+        private async void OnListViewItemSelected(object sender, SelectedItemChangedEventArgs e)
+        {
+            if (e.SelectedItem != null)
+            {
+                await Navigation.PushModalAsync(new NoteEntryPage
+                {
+                    BindingContext = (Note)e.SelectedItem
+                });
             }
-            editor.Text = string.Empty;
         }
     }
 }
